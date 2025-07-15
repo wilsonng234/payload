@@ -1,5 +1,6 @@
 'use client'
 import React, { useCallback, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 import type {
   AddCondition,
@@ -23,7 +24,12 @@ export type Props = {
   readonly value: Value
 }
 
-import type { Operator, Option as PayloadOption, ResolvedFilterOptions } from 'payload'
+import type {
+  Operator,
+  OptionObject,
+  Option as PayloadOption,
+  ResolvedFilterOptions,
+} from 'payload'
 
 import type { Option } from '../../ReactSelect/index.js'
 
@@ -63,16 +69,52 @@ export const Condition: React.FC<Props> = (props) => {
 
   const booleanSelect = ['exists'].includes(operator) || reducedField?.field?.type === 'checkbox'
 
-  let valueOptions: PayloadOption[] = []
+  const [valueOptions, setValueOptions] = useState<PayloadOption[]>([])
 
-  if (booleanSelect) {
-    valueOptions = [
-      { label: t('general:true'), value: 'true' },
-      { label: t('general:false'), value: 'false' },
-    ]
-  } else if (reducedField?.field && 'options' in reducedField.field) {
-    valueOptions = reducedField.field.options
-  }
+  useEffect(() => {
+    if (booleanSelect) {
+      setValueOptions([
+        { label: t('general:true'), value: 'true' },
+        { label: t('general:false'), value: 'false' },
+      ])
+    } else if (reducedField?.field?.admin?.custom?.dynamicFilter?.useDynamicFilter) {
+      const getDropdownOptions = async () => {
+        const { slug, dropdownLabel, optionLabelAccessor } =
+          reducedField.field.admin.custom.dynamicFilter.clientProps
+
+        const dropdownOptionsGlobal = await fetch(`/api/globals/${slug}`)
+        if (!dropdownOptionsGlobal.ok) {
+          toast.error('Failed to fetch dropdown options')
+          return
+        }
+
+        const data = await dropdownOptionsGlobal.json()
+        // RR log keywords have del flag
+        const filteredDropdownOptions = data[dropdownLabel].filter(
+          (option: Record<string, { del_flag: boolean }>) => !option.del_flag,
+        )
+        const dropdownOptionObjects = filteredDropdownOptions.map(
+          (option: Record<string, { [optionLabelAccessor: string]: string }>): OptionObject => {
+            if (!option[optionLabelAccessor]) {
+              return {
+                label: '',
+                value: '',
+              }
+            }
+
+            const labelValue = option[optionLabelAccessor]
+            return {
+              label: typeof labelValue === 'string' ? labelValue : '',
+              value: typeof labelValue === 'string' ? labelValue : '',
+            }
+          },
+        )
+        setValueOptions(dropdownOptionObjects)
+      }
+
+      void getDropdownOptions()
+    }
+  }, [booleanSelect, t, reducedField])
 
   const updateValue = useEffectEvent(async (debouncedValue) => {
     if (operator) {
