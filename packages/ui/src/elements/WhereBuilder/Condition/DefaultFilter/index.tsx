@@ -37,7 +37,11 @@ export const DefaultFilter: React.FC<Props> = ({
   options,
   value,
 }) => {
-  if (booleanSelect || ['radio', 'select'].includes(internalField?.field?.type)) {
+  if (
+    booleanSelect ||
+    internalField?.field?.admin?.custom?.dynamicFilter?.useDynamicFilter ||
+    ['radio', 'select'].includes(internalField?.field?.type)
+  ) {
     return (
       <Select
         disabled={disabled}

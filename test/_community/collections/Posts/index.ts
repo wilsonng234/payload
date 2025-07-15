@@ -13,6 +13,18 @@ export const PostsCollection: CollectionConfig = {
     {
       name: 'title',
       type: 'text',
+      admin: {
+        custom: {
+          dynamicFilter: {
+            useDynamicFilter: true,
+            clientProps: {
+              slug: 'menu',
+              dropdownLabel: 'complaint_type',
+              optionLabelAccessor: 'name',
+            },
+          },
+        },
+      },
     },
     {
       name: 'content',
@@ -20,6 +32,10 @@ export const PostsCollection: CollectionConfig = {
       editor: lexicalEditor({
         features: ({ defaultFeatures }) => [...defaultFeatures],
       }),
+    },
+    {
+      name: 'bool',
+      type: 'checkbox',
     },
   ],
 }
