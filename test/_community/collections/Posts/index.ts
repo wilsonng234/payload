@@ -8,6 +8,13 @@ export const PostsCollection: CollectionConfig = {
   slug: postsSlug,
   admin: {
     useAsTitle: 'title',
+    components: {
+      beforeListTable: [
+        {
+          path: 'test/_community/collections/Posts/CustomListFilters',
+        },
+      ],
+    },
   },
   fields: [
     {

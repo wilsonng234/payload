@@ -72,6 +72,10 @@ export const Condition: React.FC<Props> = (props) => {
   const [valueOptions, setValueOptions] = useState<PayloadOption[]>([])
 
   useEffect(() => {
+    setInternalValue(value)
+  }, [value])
+
+  useEffect(() => {
     if (booleanSelect) {
       setValueOptions([
         { label: t('general:true'), value: 'true' },

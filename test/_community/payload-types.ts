@@ -84,7 +84,7 @@ export interface Config {
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: number;
+    defaultIDType: string;
   };
   globals: {
     menu: Menu;
@@ -124,7 +124,7 @@ export interface UserAuthOperations {
  * via the `definition` "posts".
  */
 export interface Post {
-  id: number;
+  id: string;
   title?: string | null;
   content?: {
     root: {
@@ -141,6 +141,7 @@ export interface Post {
     };
     [k: string]: unknown;
   } | null;
+  bool?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -149,7 +150,7 @@ export interface Post {
  * via the `definition` "media".
  */
 export interface Media {
-  id: number;
+  id: string;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -193,7 +194,7 @@ export interface Media {
  * via the `definition` "users".
  */
 export interface User {
-  id: number;
+  id: string;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -217,24 +218,24 @@ export interface User {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: number;
+  id: string;
   document?:
     | ({
         relationTo: 'posts';
-        value: number | Post;
+        value: string | Post;
       } | null)
     | ({
         relationTo: 'media';
-        value: number | Media;
+        value: string | Media;
       } | null)
     | ({
         relationTo: 'users';
-        value: number | User;
+        value: string | User;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: number | User;
+    value: string | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -244,10 +245,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: number;
+  id: string;
   user: {
     relationTo: 'users';
-    value: number | User;
+    value: string | User;
   };
   key?: string | null;
   value?:
@@ -267,7 +268,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: number;
+  id: string;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
@@ -280,6 +281,7 @@ export interface PayloadMigration {
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
   content?: T;
+  bool?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -393,8 +395,28 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  * via the `definition` "menu".
  */
 export interface Menu {
-  id: number;
-  globalText?: string | null;
+  id: string;
+  complaint_type?:
+    | {
+        name?: string | null;
+        assigned_date_autogen?: boolean | null;
+        received_date_autogen?: boolean | null;
+        target_date_autogen?: boolean | null;
+        received_date_autoassign?: boolean | null;
+        /**
+         * TODO: handle delete flag
+         */
+        del_flag?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  result_code?:
+    | {
+        name?: string | null;
+        del_flag?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -403,7 +425,24 @@ export interface Menu {
  * via the `definition` "menu_select".
  */
 export interface MenuSelect<T extends boolean = true> {
-  globalText?: T;
+  complaint_type?:
+    | T
+    | {
+        name?: T;
+        assigned_date_autogen?: T;
+        received_date_autogen?: T;
+        target_date_autogen?: T;
+        received_date_autoassign?: T;
+        del_flag?: T;
+        id?: T;
+      };
+  result_code?:
+    | T
+    | {
+        name?: T;
+        del_flag?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
